@@ -1,8 +1,3 @@
-ログ
-README.md
-新規
-+43
--0
 
 # Next.js Monitor
 
@@ -47,3 +42,8 @@ the given directory.
 
 You can run the monitor as a background service (e.g., using `systemd`) to keep
 your Next.js development server alive.
+
+
+
+
+made with codex
