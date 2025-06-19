@@ -1,4 +1,3 @@
-
 # Next.js Monitor
 
 This repository provides a small Go program that watches a Next.js development server.
@@ -17,8 +16,8 @@ configured directory.
 # clone the repository and change into it
 cd Nextjs_Monitor
 
-# install dependencies and build
-go build
+# install dependencies and build the monitor binary
+go build -o monitor
 ```
 
 ## Running
@@ -40,10 +39,25 @@ The program will check the provided URL every 30 seconds. If the server is not
 responding and no `npm run dev` process is found, the monitor starts the server in
 the given directory.
 
-You can run the monitor as a background service (e.g., using `systemd`) to keep
-your Next.js development server alive.
+You can run the monitor as a background service using `systemd` to keep your
+Next.js development server running indefinitely.
 
+## Running with systemd
 
+The repository includes an example service file `nextjs-monitor.service`.
+Update the `ExecStart` line to point to the `monitor` binary and the directory
+containing your Next.js app. Then copy the file to `/etc/systemd/system/`:
 
+```bash
+sudo cp nextjs-monitor.service /etc/systemd/system/
+```
 
-made with codex
+Reload systemd, enable the service, and start it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now nextjs-monitor.service
+```
+
+The monitor will now run in the background and automatically restart if it
+exits.
