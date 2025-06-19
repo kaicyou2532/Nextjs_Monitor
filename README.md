@@ -1,63 +1,55 @@
-# Next.js Monitor
+＃Next.js モニター
+このリポジトリは、Next.js 開発サーバーを監視する小さな Go プログラムを提供します。指定した URL を定期的にチェックし、サーバーが停止している場合は設定されたディレクトリで npm run dev を起動します。
 
-This repository provides a small Go program that watches a Next.js development server.
-It periodically checks a URL and, if the server is down, starts `npm run dev` in the
-configured directory.
+前提条件
+Go 1.23 以降
 
-## Prerequisites
+Node.js と npm
 
-- Go 1.23 or later
-- Node.js and npm
-- A Next.js project that is launched with `npm run dev`
+npm run dev で起動する Next.js プロジェクト
 
-## Building
-
-```bash
-# clone the repository and change into it
+ビルド方法
+bash
+コピーする
+編集する
+# リポジトリをクローンしてディレクトリに移動
 cd Nextjs_Monitor
 
-# install dependencies and build the monitor binary
+# 依存関係をインストールし、monitor バイナリをビルド
 go build -o monitor
-```
+実行方法
+モニターはコマンドラインフラグで設定します:
 
-## Running
+-dir – npm run dev を実行するディレクトリ（デフォルト: カレントディレクトリ）
 
-The monitor is configured using command line flags:
+-url – ヘルスチェックに使用する URL（デフォルト: http://localhost:3000）
 
-- `-dir` – directory where `npm run dev` should be executed (default: current directory)
-- `-url` – URL used for the health check (default: `http://localhost:3000`)
-- `-interval` – how often to run the check (default: `1m`)
-- `-pattern` – pattern used with `pgrep` to detect the running `npm` process (default: `npm.*run.*dev`)
+-interval – チェックを実行する間隔（デフォルト: 1m）
 
-Example:
+-pattern – 実行中の npm プロセスを検出するために pgrep で使用するパターン（デフォルト: npm.*run.*dev）
 
-```bash
+例:
+
+bash
+コピーする
+編集する
 ./monitor -dir /path/to/nextjs/app -url http://localhost:3000 -interval 30s
-```
+このプログラムは指定した URL を 30 秒ごとにチェックし、サーバーが応答せず、かつ npm run dev プロセスが検出されない場合にのみ、指定ディレクトリでサーバーを再起動します。
 
-The program will check the provided URL every 30 seconds. If the server is not
-responding and no `npm run dev` process is found, the monitor starts the server in
-the given directory.
+バックグラウンドサービスとして systemd で起動すれば、Next.js 開発サーバーを常に稼働させ続けることも可能です。
 
-You can run the monitor as a background service using `systemd` to keep your
-Next.js development server running indefinitely.
+systemd での設定例
+リポジトリにはサンプルのサービスファイル nextjs-monitor.service が含まれています。まず、ExecStart 行を monitor バイナリへのパスと Next.js アプリのディレクトリに合わせて修正し、以下のように配置します:
 
-## Running with systemd
-
-The repository includes an example service file `nextjs-monitor.service`.
-Update the `ExecStart` line to point to the `monitor` binary and the directory
-containing your Next.js app. Then copy the file to `/etc/systemd/system/`:
-
-```bash
+bash
+コピーする
+編集する
 sudo cp nextjs-monitor.service /etc/systemd/system/
-```
+その後、systemd をリロードし、サービスを有効化して起動します:
 
-Reload systemd, enable the service, and start it:
-
-```bash
+bash
+コピーする
+編集する
 sudo systemctl daemon-reload
 sudo systemctl enable --now nextjs-monitor.service
-```
-
-The monitor will now run in the background and automatically restart if it
-exits.
+これでモニターがバックグラウンドで実行され、万が一終了しても自動的に再起動されます。
