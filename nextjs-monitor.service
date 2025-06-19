@@ -1,0 +1,13 @@
+[Unit]
+Description=Next.js Monitor
+After=network.target
+
+[Service]
+Type=simple
+# Adjust the paths and flags below as needed
+ExecStart=/usr/local/bin/monitor -dir /path/to/nextjs/app -url http://localhost:3000 -interval 1m
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
